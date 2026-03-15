@@ -1,39 +1,6 @@
-import express from "express";
 import user from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-import cookieparser from "cookie-parser";
-
-export const registerUser = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const userExist = await user.findOne({ email });
-    if (userExist) {
-      return res.status(400).json({ message: "YOU HAVE AN ACCOUNT WITH US" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = await user.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    if (newUser) {
-      res.status(200).json({
-        _id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 export const loginUser = async (req, res) => {
   try {

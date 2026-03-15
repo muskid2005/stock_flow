@@ -1,15 +1,14 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieparser from "cookie-parser";
-import jwt from "jsonwebtoken";
 import authenticationRoute from "./routes/authenticationRoute.js";
+
+const app = express();
+const PORT = process.env.PORT || 5000;
 
 dotenv.config();
 app.use(cookieparser());
 app.use(express.json());
-
-const app = express();
-const PORT = process.env.PORT || 5000;
 
 app.get("/", (req, res) => {
   res.send("Welcome to Stock Flow API!");
