@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieparser from "cookie-parser";
 import authenticationRoute from "./routes/authenticationRoute.js";
+import inventory from "./routes/inventoryRoute.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,7 +15,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to Stock Flow API!");
 });
 
-// app.get("/api/inventory", inventory);
+app.use("/api", inventory);
 
 app.use("/auth", authenticationRoute);
 
