@@ -1,24 +1,39 @@
+// Modules
 import express from "express";
-import dotenv from "dotenv";
-import cookieparser from "cookie-parser";
-import authenticationRoute from "./routes/authenticationRoute.js";
-import inventory from "./routes/inventoryRoute.js";
+import sequelize from "./src/config/database.js";
 
+// Models
+import User from "./src/models/User.js";
+import Incoming from "./src/models/Incoming.js";
+import Outgoing from "./src/models/Outgoing.js";
+import Zone from "./src/models/Zone.js";
+
+// Setup express and other middleware
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-dotenv.config();
-app.use(cookieparser());
-app.use(express.json());
+// Setup server
+const PORT = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-  res.send("Welcome to Stock Flow API!");
-});
+(async () => {
+  try {
+    // Test connection
+    await sequelize.authenticate();
 
-app.use("/api", inventory);
+    // Define relationships
+    User.hasMany(Incoming, { foreignKey: "userId" });
+    Incoming.belongsTo(User, { foreignKey: "userId" });
+    Incoming.hasMany(Outgoing, { foreignKey: "incomingId" });
+    Outgoing.belongsTo(Incoming, { foreignKey: "incomingId" });
 
-app.use("/auth", authenticationRoute);
+    // Create tables
+    await sequelize.sync({ alter: true });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+    // Launch (Local)
+    app.listen(PORT, () => {
+      console.log(`Listening for requests on http://localhost:3000`);
+    });
+  } catch (error) {
+    // Log errors
+    console.error("Unable to start the server:", error);
+  }
+})();
