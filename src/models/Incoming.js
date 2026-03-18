@@ -16,7 +16,7 @@ Incoming.init(
         supplier: { type: DataTypes.STRING, allowNull: false },
         zoneName: { type: DataTypes.ENUM("Zone A", "Zone B", "Zone C", "Zone D", "Zone E") },
         quantity: { type: DataTypes.INTEGER, allowNull: false },
-        referenceNumber: { type: DataTypes.STRING, allowNull: false }
+        referenceNumber: { type: DataTypes.STRING, allowNull: false, defaultValue: "N/A" }
     },
 
     {
