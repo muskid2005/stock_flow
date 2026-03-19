@@ -1,5 +1,5 @@
 import express from "express";
-import { getAdminDashboard } from "../controllers/adminControllers.js";
+import { getAdminDashboard } from "../controllers/adminDashboard.js";
 import { isAdmin } from "../middlewares/authMiddlewares.js";
 import jwtAuth from "../middlewares/jwtAuth.js";
 
