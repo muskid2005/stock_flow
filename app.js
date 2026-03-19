@@ -17,6 +17,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
@@ -33,7 +34,6 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api", inventoryRoutes);
-app.use(express.urlencoded({ extended: true }));
 
 (async () => {
   try {
