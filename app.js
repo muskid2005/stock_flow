@@ -16,6 +16,7 @@ const app = express();
 
 // Setup server
 const PORT = process.env.PORT || 3000;
+const HOSTNAME = process.env.SERVER_URL;
 
 // Middleware
 app.use(express.json());
@@ -28,7 +29,7 @@ import Outgoing from "./src/models/Outgoing.js";
 
 // routes
 app.get("/", (req, res) => {
-  res.json({ status: "ACTIVE", environmenyt: process.env.NODE_ENV });
+  res.json({ status: "ACTIVE", environment: process.env.NODE_ENV });
 });
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
@@ -48,9 +49,9 @@ app.use("/api", inventoryRoutes);
     // Create tables
     await sequelize.sync({ alter: true });
 
-    // Launch (Local)
+    // Launch (Live)
     app.listen(PORT, () => {
-      console.log(`Listening for requests on http://localhost:3000`);
+      console.log(`Listening for requests on ${HOTSNAME}`);
     });
   } catch (error) {
     // Log errors
