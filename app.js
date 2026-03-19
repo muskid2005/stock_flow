@@ -33,6 +33,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api", inventoryRoutes);
+app.use(express.urlencoded({ extended: true }));
 
 (async () => {
   try {
