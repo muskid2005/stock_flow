@@ -47,7 +47,7 @@ app.use("/api", inventoryRoutes);
     Outgoing.belongsTo(Incoming, { foreignKey: "incomingId" });
 
     // Create tables
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
 
     // Launch (Local)
     app.listen(PORT, () => {
