@@ -4,6 +4,12 @@ import sequelize from "./src/config/database.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./src/routes/authenticationRoute.js";
 import adminRoutes from "./src/routes/adminroute.js";
+import inventoryRoutes from "./src/routes/inventoryRoute.js";
+import dotenv from "dotenv";
+import cors from "cors";
+
+dotenv.config();
+app.use(cors());
 
 // Setup express and other middleware
 const app = express();
@@ -19,11 +25,14 @@ app.use(cookieParser());
 import User from "./src/models/User.js";
 import Incoming from "./src/models/Incoming.js";
 import Outgoing from "./src/models/Outgoing.js";
-import Zone from "./src/models/Zone.js";
 
 // routes
+app.get("/", (req, res) => {
+  res.json({ status: "ACTIVE", environmenyt: process.env.NODE_ENV });
+});
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
+app.use("/api", inventoryRoutes);
 
 (async () => {
   try {
