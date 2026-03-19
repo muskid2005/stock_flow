@@ -13,7 +13,6 @@ const jwtAuth = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = decoded; // attach user info to request
-    // console.log("Authenticated user:", req.user);
     next();
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });

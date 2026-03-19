@@ -1,81 +1,52 @@
-import pool from "../config/db.js";
+import Incoming from "../models/Incoming.js";
+import sequelize from "../config/database.js";
 
-export const inventoryGoods = async (req, res) => {
+export const getInventory = async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM inventory");
-    res.status(200).json(result.rows);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Internal server error --- from controller inventory" });
-  }
-};
-
-export const inventoryStatus = async (req, res) => {
-  try {
-    const LOW_STOCK_LIMIT = zone.capacity * 0.2;
-
-    const result = await pool.query("SELECT * FROM items");
-
-    const items = result.rows.map((item) => {
-      let status;
-
-      if (item.quantity === 0) status = "Out of Stock";
-      else if (item.quantity <= LOW_STOCK_LIMIT) status = "Low Stock";
-      else status = "In Stock";
-
-      return { ...item, status };
+    // 1. Fetch live stock for the main table
+    const inventory = await Incoming.findAll({
+      order: [["productName", "ASC"]],
     });
 
-    res.json(items);
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Internal server error --- from controller inventory" });
-  }
-};
+    // 2. Calculate Supplier Breakdown (The status bars at the bottom)
+    const supplierBreakdown = await Incoming.findAll({
+      attributes: [
+        "supplier",
+        [sequelize.fn("COUNT", sequelize.col("sku")), "skuCount"],
+        [sequelize.fn("SUM", sequelize.col("quantity")), "totalUnits"],
+      ],
+      group: ["supplier"],
+      order: [[sequelize.literal('"totalUnits"'), "DESC"]],
+    });
 
-export const inventoryZone = async (req, res) => {
-  try {
-    const { zoneId } = req.params;
+    // 3. Process items for the UI
+    const items = inventory.map((item) => ({
+      sku: item.sku,
+      productName: item.productName,
+      supplier: item.supplier,
+      zone: item.zoneName,
+      qtyAvailable: item.quantity,
+      status: item.quantity < 100 ? "Low Stock" : "In Stock",
+      capacity: Math.round((item.quantity / 5000) * 100), // Mocking % for the bar
+    }));
 
-    // get zone info
-    const zoneResult = await pool.query("SELECT * FROM zones WHERE id = $1", [
-      zoneId,
-    ]);
-
-    if (zoneResult.rows.length === 0) {
-      return res.status(404).json({ error: "Zone not found" });
-    }
-
-    const zone = zoneResult.rows[0];
-
-    // get items in that zone
-    const itemsResult = await pool.query(
-      "SELECT * FROM inventory WHERE zone_id = $1",
-      [zoneId],
-    );
-
-    const items = itemsResult.rows;
-
-    // calculate occupied space
-    const occupied = items.reduce((total, item) => total + item.quantity, 0);
-
-    const available = zone.capacity - occupied;
-
-    const usedPercent = Math.round((occupied / zone.capacity) * 100);
-
-    res.json({
-      zone: zone.name,
-      capacity: zone.capacity,
-      occupied,
-      available,
-      usedPercent,
-      items,
+    // 4. Final Response for the UI
+    res.status(200).json({
+      summary: {
+        totalSKUs: inventory.length,
+        totalUnits: inventory.reduce((a, b) => a + b.quantity, 0),
+        lowStock: items.filter((i) => i.status === "Low Stock").length,
+      },
+      inventory: items,
+      supplierBreakdown: supplierBreakdown.map((s) => ({
+        name: s.supplier,
+        skus: s.getDataValue("skuCount"),
+        totalUnits: s.getDataValue("totalUnits"),
+        fillRate: "95%", // Static for UI demo
+        status: "Active",
+      })),
     });
   } catch (error) {
-    res.status(500).json({
-      error: "Internal server error --- from controller inventory",
-    });
+    res.status(500).json({ message: error.message });
   }
 };
