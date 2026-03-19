@@ -28,7 +28,7 @@ import Outgoing from "./src/models/Outgoing.js";
 
 // routes
 app.get("/", (req, res) => {
-  res.json({ status: "ACTIVE", environmenyt: process.env.NODE_ENV });
+  res.json({ status: "ACTIVE", environment: process.env.NODE_ENV });
 });
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
