@@ -9,7 +9,12 @@ Zone.init(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     zone: {
-      type: DataTypes.ENUM("Zone A", "Zone B", "Zone C", "Zone D", "Zone E"),
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        isIn: [["Zone A", "Zone B", "Zone C", "Zone D", "Zone E"]],
+      },
     },
     capacity: { type: DataTypes.INTEGER, allowNull: false },
     currentStock: {
