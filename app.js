@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 dotenv.config();
-app.use(cors());
 
 // Setup express and other middleware
 const app = express();
@@ -20,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 // Models
 import User from "./src/models/User.js";
