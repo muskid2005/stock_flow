@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 
 dotenv.config();
-
+console.log(process.env.PORT);
 // Setup express and other middleware
 const app = express();
 
@@ -47,7 +47,7 @@ app.use("/api", inventoryRoutes);
     Outgoing.belongsTo(Incoming, { foreignKey: "incomingId" });
 
     // Create tables
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
 
     // Launch (Local)
     app.listen(PORT, () => {
