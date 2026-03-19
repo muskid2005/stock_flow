@@ -1,6 +1,19 @@
 // Modules
 import express from "express";
 import sequelize from "./src/config/database.js";
+import cookieParser from "cookie-parser";
+import authRoutes from "./src/routes/authenticationRoute.js";
+import adminRoutes from "./src/routes/adminroute.js";
+
+// Setup express and other middleware
+const app = express();
+
+// Setup server
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
 // Models
 import User from "./src/models/User.js";
@@ -8,11 +21,9 @@ import Incoming from "./src/models/Incoming.js";
 import Outgoing from "./src/models/Outgoing.js";
 import Zone from "./src/models/Zone.js";
 
-// Setup express and other middleware
-const app = express();
-
-// Setup server
-const PORT = process.env.PORT || 3000;
+// routes
+app.use("/auth", authRoutes);
+app.use("/admin", adminRoutes);
 
 (async () => {
   try {
