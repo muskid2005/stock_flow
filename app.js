@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./src/routes/authenticationRoute.js";
 import adminRoutes from "./src/routes/adminroute.js";
 import inventoryRoutes from "./src/routes/inventoryRoute.js";
+import userRoute from "./src/routes/userRoute.js";
 import dotenv from "dotenv";
 import cors from "cors";
 
@@ -12,7 +13,7 @@ dotenv.config();
 console.log(process.env.PORT);
 // Setup express and other middleware
 const app = express();
-
+app.use("/api/users", userRoute);
 // Setup server
 const PORT = process.env.PORT || 3000;
 
