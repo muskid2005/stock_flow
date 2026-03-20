@@ -5,11 +5,13 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./src/routes/authenticationRoute.js";
 import adminRoutes from "./src/routes/adminroute.js";
 import inventoryRoutes from "./src/routes/inventoryRoute.js";
+import supplierRoutes from "./src/routes/supplierRoutes.js";
+import reportRoutes from "./src/routes/reportRoutes.js";
+
 import dotenv from "dotenv";
 import cors from "cors";
 
 dotenv.config();
-console.log(process.env.PORT);
 // Setup express and other middleware
 const app = express();
 
@@ -34,6 +36,8 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api", inventoryRoutes);
+app.use("/api/suppliers", supplierRoutes);
+app.use("/api/reports", reportRoutes);
 
 (async () => {
   try {
@@ -47,7 +51,7 @@ app.use("/api", inventoryRoutes);
     Outgoing.belongsTo(Incoming, { foreignKey: "incomingId" });
 
     // Create tables
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
 
     // Launch (Local)
     app.listen(PORT, () => {

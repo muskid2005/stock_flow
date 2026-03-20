@@ -11,7 +11,10 @@ export const recordIncoming = async (req, res) => {
     const { productName, quantity, zoneId, supplier, referenceNumber } =
       req.body;
 
-    const zone = await Zone.findByPk(zoneId, { transaction: t });
+    const zone = await Zone.findByPk(zoneId, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
 
     if (!zone) {
       return res.status(404).json({ message: "Zone not found" });
@@ -87,25 +90,18 @@ export const recordOutgoing = async (req, res) => {
     const zone = await Zone.findOne({
       where: { zone: zoneName },
       transaction: t,
+      lock: t.LOCK.UPDATE,
     });
 
-    const exitEntry = await Outgoing.create(
-      {
-        productName,
-        zoneName,
-        quantity: qtyOut,
-        destination,
-        userId: req.user.id,
-      },
-      { transaction: t },
-    );
-
+    const usedIncomingIds = [];
     let remaining = qtyOut;
 
     for (const stock of stocks) {
       if (remaining <= 0) break;
 
       const available = stock.quantity;
+
+      usedIncomingIds.push(stock.id);
 
       if (available >= remaining) {
         await stock.decrement("quantity", {
@@ -122,12 +118,26 @@ export const recordOutgoing = async (req, res) => {
       }
     }
 
+    const exitEntry = await Outgoing.create(
+      {
+        productName,
+        zoneName,
+        quantity: qtyOut,
+        destination,
+        userId: req.user.id,
+        incomingId: usedIncomingIds[0],
+        incomingIds: usedIncomingIds,
+      },
+      { transaction: t },
+    );
+
     if (zone) {
       await zone.decrement("currentStock", {
         by: qtyOut,
         transaction: t,
       });
     }
+    await zone.reload({ transaction: t });
 
     const updatedStocks = await Incoming.findAll({
       where: {
