@@ -15,6 +15,14 @@ Outgoing.init(
     },
     quantity: { type: DataTypes.INTEGER, allowNull: false },
     destination: { type: DataTypes.STRING, allowNull: false },
+    incomingId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    incomingIds: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
   },
 
   {

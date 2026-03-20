@@ -89,23 +89,15 @@ export const recordOutgoing = async (req, res) => {
       transaction: t,
     });
 
-    const exitEntry = await Outgoing.create(
-      {
-        productName,
-        zoneName,
-        quantity: qtyOut,
-        destination,
-        userId: req.user.id,
-      },
-      { transaction: t },
-    );
-
+    const usedIncomingIds = [];
     let remaining = qtyOut;
 
     for (const stock of stocks) {
       if (remaining <= 0) break;
 
       const available = stock.quantity;
+
+      usedIncomingIds.push(stock.id);
 
       if (available >= remaining) {
         await stock.decrement("quantity", {
@@ -121,6 +113,19 @@ export const recordOutgoing = async (req, res) => {
         remaining -= available;
       }
     }
+
+    const exitEntry = await Outgoing.create(
+      {
+        productName,
+        zoneName,
+        quantity: qtyOut,
+        destination,
+        userId: req.user.id,
+        incomingId: usedIncomingIds[0],
+        incomingIds: usedIncomingIds,
+      },
+      { transaction: t },
+    );
 
     if (zone) {
       await zone.decrement("currentStock", {
