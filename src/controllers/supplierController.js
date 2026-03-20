@@ -1,4 +1,4 @@
-import Supplier from "../models/supplier.js";
+import Supplier from "../models/Supplier.js";
 import { generateSupplierCode } from "../utils/generateSupplierCode.js";
 
 export const createSupplier = async (req, res) => {
