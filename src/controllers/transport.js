@@ -11,7 +11,10 @@ export const recordIncoming = async (req, res) => {
     const { productName, quantity, zoneId, supplier, referenceNumber } =
       req.body;
 
-    const zone = await Zone.findByPk(zoneId, { transaction: t });
+    const zone = await Zone.findByPk(zoneId, {
+      transaction: t,
+      lock: t.LOCK.UPDATE,
+    });
 
     if (!zone) {
       return res.status(404).json({ message: "Zone not found" });
@@ -87,6 +90,7 @@ export const recordOutgoing = async (req, res) => {
     const zone = await Zone.findOne({
       where: { zone: zoneName },
       transaction: t,
+      lock: t.LOCK.UPDATE,
     });
 
     const usedIncomingIds = [];
@@ -133,6 +137,7 @@ export const recordOutgoing = async (req, res) => {
         transaction: t,
       });
     }
+    await zone.reload({ transaction: t });
 
     const updatedStocks = await Incoming.findAll({
       where: {
