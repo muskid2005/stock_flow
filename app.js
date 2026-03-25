@@ -17,12 +17,34 @@ const app = express();
 
 // Setup server
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = process.env.FRONTEND_URLS
+  ? process.env.FRONTEND_URLS.split(",").map((origin) => origin.trim())
+  : [];
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests like Postman (no origin)
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.startsWith("http://localhost") || // allow any localhost port
+        origin.startsWith("http://127.0.0.1");
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS: " + origin));
+      }
+    },
+    credentials: true,
+  }),
+);
 
 // Models
 import User from "./src/models/User.js";
