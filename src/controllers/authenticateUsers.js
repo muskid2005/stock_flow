@@ -57,8 +57,9 @@ export const loginUser = async (req, res) => {
     });
 
     res.json({
-      id: userExist.id,
       message: "LOGIN SUCCESSFUL",
+      id: userExist.id,
+      name: `${userExist.firstName} ${userExist.lastName}`,
       role: userExist.role,
     });
   } catch (error) {
