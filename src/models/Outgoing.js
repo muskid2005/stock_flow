@@ -19,10 +19,6 @@ Outgoing.init(
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    productName: { type: DataTypes.STRING, allowNull: false },
-    zoneName: {
-      type: DataTypes.ENUM("Zone A", "Zone B", "Zone C", "Zone D", "Zone E"),
-    },
     incomingIds: {
       type: DataTypes.JSONB,
       allowNull: true,
