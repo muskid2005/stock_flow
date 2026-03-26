@@ -7,6 +7,8 @@ import adminRoutes from "./src/routes/adminroute.js";
 import inventoryRoutes from "./src/routes/inventoryRoute.js";
 import supplierRoutes from "./src/routes/supplierRoutes.js";
 import reportRoutes from "./src/routes/reportRoutes.js";
+import dashboardSummaryRoutes from "./src/routes/dashboardSummaryRoute.js";
+import filterRoutes from "./src/routes/filterRoute.js";
 
 import dotenv from "dotenv";
 import cors from "cors";
@@ -60,27 +62,26 @@ app.use("/admin", adminRoutes);
 app.use("/api", inventoryRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/dashboard", dashboardSummaryRoutes);
+app.use("/api/filter", filterRoutes);
 
-(async () => {
+const startServer = async () => {
   try {
-    // Test connection
     await sequelize.authenticate();
 
-    // Define relationships
     User.hasMany(Incoming, { foreignKey: "userId" });
     Incoming.belongsTo(User, { foreignKey: "userId" });
     Incoming.hasMany(Outgoing, { foreignKey: "incomingId" });
     Outgoing.belongsTo(Incoming, { foreignKey: "incomingId" });
 
-    // Create tables
     await sequelize.sync({ alter: true });
-
-    // Launch (Local)
-    app.listen(PORT, () => {
-      console.log(`Listening for requests on http://localhost:3000`);
-    });
   } catch (error) {
-    // Log errors
-    console.error("Unable to start the server:", error);
+    console.error("DB error:", error);
   }
-})();
+};
+
+startServer();
+
+app.listen(PORT, () => {
+  console.log(`Server running on port http://localhost:${PORT}`);
+});
