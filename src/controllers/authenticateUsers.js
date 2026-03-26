@@ -22,6 +22,8 @@ export const registerUser = async (req, res) => {
       user: {
         id: newUser.id,
         email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
         role: newUser.role,
       },
     });
