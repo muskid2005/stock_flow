@@ -25,6 +25,10 @@ Incoming.init(
       allowNull: false,
       defaultValue: "N/A",
     },
+    status: {
+      type: DataTypes.ENUM("pending", "in_transit", "received"),
+      defaultValue: "pending",
+    },
   },
 
   {
