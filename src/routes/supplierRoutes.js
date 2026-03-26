@@ -1,4 +1,5 @@
 import express from "express";
+import jwtAuth from "../middlewares/jwtAuth.js";
 import {
   createSupplier,
   getAllSuppliers,
@@ -9,10 +10,10 @@ import {
 
 const router = express.Router();
 
-router.post("/", createSupplier);
-router.get("/", getAllSuppliers);
-router.get("/:id", getSupplier);
-router.put("/:id", updateSupplier);
-router.delete("/:id", deleteSupplier);
+router.post("/", jwtAuth, createSupplier);
+router.get("/", jwtAuth, getAllSuppliers);
+router.get("/:id", jwtAuth, getSupplier);
+router.put("/:id", jwtAuth, updateSupplier);
+router.delete("/:id", jwtAuth, deleteSupplier);
 
 export default router;
