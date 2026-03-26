@@ -58,13 +58,13 @@ export const loginUser = async (req, res) => {
     //   maxAge: 24 * 60 * 60 * 1000,
     // });
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production", // ⚠️ change to true in production (HTTPS)
-    //   sameSite: "lax", // ⚠️ use "none" in production with HTTPS
-    //   maxAge: 24 * 60 * 60 * 1000,
-    // });
-    console.log("TOKEN:", token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // ⚠️ change to true in production (HTTPS)
+      sameSite: "lax", // ⚠️ use "none" in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.json({
       message: "LOGIN SUCCESSFUL",
       id: userExist.id,
@@ -75,5 +75,23 @@ export const loginUser = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const logoutUser = (req, res) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true, // must match login
+      sameSite: "none", // must match login
+    });
+
+    res.status(200).json({
+      message: "LOGOUT SUCCESSFUL",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };

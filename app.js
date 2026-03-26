@@ -9,6 +9,7 @@ import supplierRoutes from "./src/routes/supplierRoutes.js";
 import reportRoutes from "./src/routes/reportRoutes.js";
 import dashboardSummaryRoutes from "./src/routes/dashboardSummaryRoute.js";
 import filterRoutes from "./src/routes/filterRoute.js";
+import logoutRoutes from "./src/routes/logoutRoute.js";
 
 import dotenv from "dotenv";
 import cors from "cors";
@@ -64,6 +65,7 @@ app.use("/api/suppliers", supplierRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/dashboard", dashboardSummaryRoutes);
 app.use("/api/filter", filterRoutes);
+app.use("/api/logout", logoutRoutes);
 
 const startServer = async () => {
   try {
