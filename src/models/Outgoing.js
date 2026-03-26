@@ -23,6 +23,10 @@ Outgoing.init(
       type: DataTypes.JSONB,
       allowNull: true,
     },
+    status: {
+      type: DataTypes.ENUM("pending", "in_transit", "delivered"),
+      defaultValue: "pending",
+    },
   },
 
   {

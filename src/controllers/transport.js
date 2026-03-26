@@ -165,3 +165,164 @@ export const recordOutgoing = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// --------------------------------------
+export const updateIncoming = async (req, res) => {
+  try {
+    const incoming = await Incoming.findByPk(req.params.id);
+
+    if (!incoming) {
+      return res.status(404).json({ message: "Incoming not found" });
+    }
+
+    const allowedStatus = ["pending", "in_transit", "received"];
+
+    if (req.body.status && !allowedStatus.includes(req.body.status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    await incoming.update(req.body);
+
+    res.json({
+      status: "success",
+      incoming,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const updateOutgoing = async (req, res) => {
+  try {
+    const outgoing = await Outgoing.findByPk(req.params.id);
+
+    if (!outgoing) {
+      return res.status(404).json({ message: "Outgoing not found" });
+    }
+
+    const allowedStatus = ["pending", "in_transit", "delivered"];
+
+    if (req.body.status && !allowedStatus.includes(req.body.status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    await outgoing.update(req.body);
+
+    res.json({
+      status: "success",
+      outgoing,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ----------------------------------------
+export const getAllIncoming = async (req, res) => {
+  try {
+    const { count, rows } = await Incoming.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({
+      count,
+      incoming: rows,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const getAllOutgoing = async (req, res) => {
+  try {
+    const { count, rows } = await Outgoing.findAndCountAll({
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({
+      count,
+      outgoing: rows,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// -----------------------------------
+export const deleteIncoming = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const incoming = await Incoming.findByPk(req.params.id, {
+      transaction: t,
+    });
+
+    if (!incoming) {
+      await t.rollback();
+      return res.status(404).json({ message: "Incoming not found" });
+    }
+
+    const zone = await Zone.findOne({
+      where: { zone: incoming.zoneName },
+      transaction: t,
+    });
+
+    if (zone) {
+      await zone.decrement("currentStock", {
+        by: incoming.quantity,
+        transaction: t,
+      });
+    }
+
+    await incoming.destroy({ transaction: t });
+
+    await t.commit();
+
+    res.json({
+      status: "success",
+      message: "Incoming deleted",
+    });
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const deleteOutgoing = async (req, res) => {
+  const t = await sequelize.transaction();
+
+  try {
+    const outgoing = await Outgoing.findByPk(req.params.id, {
+      transaction: t,
+    });
+
+    if (!outgoing) {
+      await t.rollback();
+      return res.status(404).json({ message: "Outgoing not found" });
+    }
+
+    const zone = await Zone.findOne({
+      where: { zone: outgoing.zoneName },
+      transaction: t,
+    });
+
+    if (zone) {
+      await zone.increment("currentStock", {
+        by: outgoing.quantity,
+        transaction: t,
+      });
+    }
+
+    await outgoing.destroy({ transaction: t });
+
+    await t.commit();
+
+    res.json({
+      status: "success",
+      message: "Outgoing deleted",
+    });
+  } catch (error) {
+    await t.rollback();
+    res.status(500).json({ error: error.message });
+  }
+};
